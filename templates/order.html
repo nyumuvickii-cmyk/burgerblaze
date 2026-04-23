@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Checkout - BurgerBlaze{% endblock %}
+
+{% block content %}
+<section class="checkout-section">
+    <div class="container">
+        <h1>Complete Your Order</h1>
+        
+        <div class="checkout-container">
+            <div class="order-summary">
+                <h2>Order Summary</h2>
+                <div id="order-items" class="order-items"></div>
+                <div class="order-total">
+                    <h3>Total: <span id="order-total">$0.00</span></h3>
+                </div>
+                <button class="btn btn-secondary" onclick="editCart()">
+                    Edit Cart
+                </button>
+            </div>
+            
+            <div class="checkout-form">
+                <h2>Customer Information</h2>
+                <form id="order-form" onsubmit="submitOrder(event)">
+                    <div class="form-group">
+                        <label for="customer-name">Full Name *</label>
+                        <input type="text" id="customer-name" name="customer_name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customer-email">Email *</label>
+                        <input type="email" id="customer-email" name="customer_email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customer-phone">Phone Number *</label>
+                        <input type="tel" id="customer-phone" name="customer_phone" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="special-notes">Special Instructions</label>
+                        <textarea id="special-notes" name="notes" rows="4" placeholder="Any special requests or allergies?"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" required>
+                            <span>I agree to the terms and conditions</span>
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-large">
+                        Place Order
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <div id="success-message" class="success-message" style="display: none;">
+            <h2>Order Confirmed!</h2>
+            <p>Your order number is: <strong id="order-number"></strong></p>
+            <p>We'll prepare your order right away!</p>
+            <a href="/" class="btn btn-primary">Back to Home</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let cartData = null;
+let sessionId = localStorage.getItem('sessionId') || 'session-' + Date.now();
+
+document.addEventListener('DOMContentLoaded', function() {
+    localStorage.setItem('sessionId', sessionId);
+    loadOrderSummary();
+});
+
+function loadOrderSummary() {
+    const cartItems = JSON.parse(sessionStorage.getItem('cartItems') || '[]');
+    
+    if (cartItems.length === 0) {
+        document.getElementById('order-items').innerHTML = '<p>Your cart is empty. <a href="/menu/">Add items</a></p>';
+        document.getElementById('checkout-form').style.display = 'none';
+        return;
+    }
+    
+    let total = 0;
+    const itemsHtml = cartItems.map(item => {
+        total += item.price * item.quantity;
+        return `
+            <div class="order-item">
+                <span>${item.name} x${item.quantity}</span>
+                <span>$${(item.price * item.quantity).toFixed(2)}</span>
+            </div>
+        `;
+    }).join('');
+    
+    document.getElementById('order-items').innerHTML = itemsHtml;
+    document.getElementById('order-total').textContent = '$' + total.toFixed(2);
+}
+
+function editCart() {
+    window.location.href = '/menu/';
+}
+
+function submitOrder(event) {
+    event.preventDefault();
+    
+    const cartItems = JSON.parse(sessionStorage.getItem('cartItems') || '[]');
+    if (cartItems.length === 0) {
+        alert('Cart is empty');
+        return;
+    }
+    
+    const orderData = {
+        customer_name: document.getElementById('customer-name').value,
+        customer_email: document.getElementById('customer-email').value,
+        customer_phone: document.getElementById('customer-phone').value,
+        notes: document.getElementById('special-notes').value,
+        items: cartItems
+    };
+    
+    fetch('/api/orders/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(orderData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('order-form').style.display = 'none';
+        document.getElementById('order-summary').style.display = 'none';
+        document.getElementById('success-message').style.display = 'block';
+        document.getElementById('order-number').textContent = data.order_number;
+        sessionStorage.removeItem('cartItems');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error placing order. Please try again.');
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}BurgerBlaze - Home{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-content">
+        <h1>Welcome to <span class="highlight">BurgerBlaze</span></h1>
+        <p>Discover the best burgers, flame-grilled to perfection</p>
+        <a href="/menu/" class="btn btn-primary btn-large">
+            <i class="fas fa-utensils"></i> Order Now
+        </a>
+    </div>
+</section>
+
+<section class="features">
+    <div class="container">
+        <h2>Why Choose BurgerBlaze?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <i class="fas fa-fire"></i>
+                <h3>Flame Grilled</h3>
+                <p>Every burger is fresh flame-grilled to order with premium ingredients</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-clock"></i>
+                <h3>Fast Delivery</h3>
+                <p>Quick preparation and delivery right to your door</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-star"></i>
+                <h3>Quality Ingredients</h3>
+                <p>We use only the freshest, highest quality ingredients available</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-cutlery"></i>
+                <h3>Wide Menu</h3>
+                <p>Choice of burgers, sides, drinks, and desserts for everyone</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="specials">
+    <div class="container">
+        <h2>Today's Specials</h2>
+        <div class="specials-grid" id="specials-grid"></div>
+    </div>
+</section>
+
+<section class="cta">
+    <div class="container">
+        <h2>Ready to Taste the Blaze?</h2>
+        <p>Order your favorite burger combo today</p>
+        <a href="/menu/" class="btn btn-secondary btn-large">
+            Browse Full Menu
+        </a>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadSpecials();
+});
+
+function loadSpecials() {
+    fetch('/api/menu/specials/')
+        .then(response => response.json())
+        .then(data => {
+            const grid = document.getElementById('specials-grid');
+            grid.innerHTML = '';
+            
+            const items = [...data.spicy, ...data.vegetarian].slice(0, 4);
+            items.forEach(item => {
+                const card = createMenuCard(item);
+                grid.appendChild(card);
+            });
+        })
+        .catch(error => console.error('Error loading specials:', error));
+}
+
+function createMenuCard(item) {
+    const card = document.createElement('div');
+    card.className = 'menu-card';
+    card.innerHTML = `
+        <img src="${item.image}" alt="${item.name}">
+        <div class="card-content">
+            <h3>${item.name}</h3>
+            <p>${item.description.substring(0, 100)}...</p>
+            <div class="card-footer">
+                <span class="price">$${parseFloat(item.price).toFixed(2)}</span>
+                <button class="btn-icon" onclick="addToCart(${item.id}, '${item.name}', ${item.price})">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </div>
+    `;
+    return card;
+}
+</script>
+{% endblock %}

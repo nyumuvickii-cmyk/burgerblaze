@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Menu - BurgerBlaze{% endblock %}
+
+{% block content %}
+<section class="menu-section">
+    <div class="container">
+        <h1>Our Menu</h1>
+        <p class="section-subtitle">Delicious flame-grilled items ready for you</p>
+        
+        <div class="menu-container">
+            <aside class="menu-filters">
+                <h3>Filter by Category</h3>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" onclick="filterByCategory('all')">
+                        All Items
+                    </button>
+                    <div id="category-filters"></div>
+                </div>
+                
+                <h3>Dietary Options</h3>
+                <div class="dietary-filters">
+                    <label>
+                        <input type="checkbox" onchange="filterByDietary()">
+                        <span>Vegetarian</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" onchange="filterByDietary()">
+                        <span>Spicy</span>
+                    </label>
+                </div>
+            </aside>
+            
+            <div class="menu-grid">
+                <div id="menu-items" class="items-grid"></div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let allItems = [];
+let filteredItems = [];
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadCategories();
+    loadMenuItems();
+});
+
+function loadCategories() {
+    fetch('/api/categories/')
+        .then(response => response.json())
+        .then(data => {
+            const filterDiv = document.getElementById('category-filters');
+            filterDiv.innerHTML = '';
+            data.results.forEach(category => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.textContent = category.name;
+                btn.onclick = () => filterByCategory(category.id);
+                filterDiv.appendChild(btn);
+            });
+        });
+}
+
+function loadMenuItems() {
+    fetch('/api/menu/')
+        .then(response => response.json())
+        .then(data => {
+            allItems = data.results;
+            filteredItems = allItems;
+            displayMenuItems(filteredItems);
+        });
+}
+
+function filterByCategory(categoryId) {
+    if (categoryId === 'all') {
+        filteredItems = allItems;
+    } else {
+        filteredItems = allItems.filter(item => item.category === categoryId);
+    }
+    displayMenuItems(filteredItems);
+}
+
+function filterByDietary() {
+    const checkboxes = document.querySelectorAll('.dietary-filters input[type="checkbox"]');
+    let tempItems = allItems;
+    
+    checkboxes.forEach((checkbox, index) => {
+        if (checkbox.checked) {
+            if (index === 0) { // Vegetarian
+                tempItems = tempItems.filter(item => item.is_vegetarian);
+            } else if (index === 1) { // Spicy
+                tempItems = tempItems.filter(item => item.is_spicy);
+            }
+        }
+    });
+    
+    filteredItems = tempItems;
+    displayMenuItems(filteredItems);
+}
+
+function displayMenuItems(items) {
+    const grid = document.getElementById('menu-items');
+    grid.innerHTML = '';
+    
+    if (items.length === 0) {
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No items found</p>';
+        return;
+    }
+    
+    items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'menu-card';
+        card.innerHTML = `
+            <img src="${item.image}" alt="${item.name}">
+            <div class="card-badges">
+                ${item.is_vegetarian ? '<span class="badge badge-green">Vegetarian</span>' : ''}
+                ${item.is_spicy ? '<span class="badge badge-red">Spicy</span>' : ''}
+            </div>
+            <div class="card-content">
+                <h3>${item.name}</h3>
+                <p>${item.description}</p>
+                <div class="card-footer">
+                    <span class="price">$${parseFloat(item.price).toFixed(2)}</span>
+                    <button class="btn-icon" onclick="addToCart(${item.id}, '${item.name}', ${item.price})">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+}
+</script>
+{% endblock %}
