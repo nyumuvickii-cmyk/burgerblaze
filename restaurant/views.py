@@ -4,8 +4,10 @@ Views for restaurant app API.
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.shortcuts import render
-from django.http import JsonResponse
+from django.shortcuts import render, redirect
+from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
+from .forms import RegisterForm
 from .models import MenuItem, MenuCategory, Order, OrderItem, Cart, CartItem
 from .serializers import (
     MenuItemSerializer, MenuCategorySerializer, OrderSerializer, 
@@ -16,6 +18,28 @@ from .serializers import (
 def home_view(request):
     """Render home page."""
     return render(request, 'index.html')
+
+
+def register_view(request):
+    if request.user.is_authenticated:
+        return redirect('account')
+
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('account')
+    else:
+        form = RegisterForm()
+
+    return render(request, 'register.html', {'form': form})
+
+
+@login_required
+def account_view(request):
+    orders = request.user.orders.all().order_by('-created_at')
+    return render(request, 'account.html', {'orders': orders})
 
 
 class MenuViewSet(viewsets.ModelViewSet):
@@ -79,9 +103,16 @@ class OrderViewSet(viewsets.ModelViewSet):
         order_data = request.data
         
         # Create order
+        customer_name = order_data.get('customer_name')
+        customer_email = order_data.get('customer_email')
+        if request.user.is_authenticated:
+            customer_name = customer_name or request.user.get_full_name() or request.user.username
+            customer_email = customer_email or request.user.email
+
         order = Order.objects.create(
-            customer_name=order_data.get('customer_name'),
-            customer_email=order_data.get('customer_email'),
+            user=request.user if request.user.is_authenticated else None,
+            customer_name=customer_name,
+            customer_email=customer_email,
             customer_phone=order_data.get('customer_phone'),
             notes=order_data.get('notes', ''),
         )
