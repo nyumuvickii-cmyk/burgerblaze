@@ -2,7 +2,7 @@
 Admin configuration for restaurant app.
 """
 from django.contrib import admin
-from .models import MenuCategory, MenuItem, Order, OrderItem, Cart, CartItem
+from .models import MenuCategory, MenuItem, Order, OrderItem, Cart, CartItem, UserProfile
 
 
 @admin.register(MenuCategory)
@@ -60,3 +60,10 @@ class CartItemAdmin(admin.ModelAdmin):
     def get_subtotal(self, obj):
         return obj.get_subtotal()
     get_subtotal.short_description = 'Subtotal'
+
+
+# Admin configuration for UserProfile
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ('user',)
+
+admin.site.register(UserProfile, UserProfileAdmin)

@@ -3,7 +3,25 @@ Restaurant app models for burgerblaze.
 """
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    order_history = models.JSONField(default=list)
+
+    def __str__(self):
+        return self.user.username
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    UserProfile.objects.get_or_create(user=instance)
 
 class MenuCategory(models.Model):
     """Menu category like Burgers, Sides, Drinks, Desserts."""
@@ -52,6 +70,7 @@ class Order(models.Model):
     ]
     
     order_number = models.CharField(max_length=20, unique=True)
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='orders')
     customer_name = models.CharField(max_length=200)
     customer_email = models.EmailField()
     customer_phone = models.CharField(max_length=20)

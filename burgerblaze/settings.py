@@ -107,6 +107,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# UserProfile is an extension model, not a custom auth user model.
+# Do not set AUTH_USER_MODEL unless UserProfile subclasses AbstractUser/AbstractBaseUser.
 
 # Internationalization
 
@@ -135,6 +137,10 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # Default primary key field type
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_REDIRECT_URL = 'account'
+LOGOUT_REDIRECT_URL = 'home'
+LOGIN_URL = 'login'
 
 # REST Framework configuration
 REST_FRAMEWORK = {
