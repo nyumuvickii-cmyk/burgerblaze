@@ -503,19 +503,45 @@ body {
 .form-group input[type="text"],
 .form-group input[type="email"],
 .form-group input[type="tel"],
-.form-group textarea {
+.form-group textarea,
+.form-group input[type="password"] {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
     border-radius: var(--border-radius);
     font-size: 1rem;
-    transition: border-color 0.3s;
+    transition: all 0.3s ease;
+    background: #fafafa;
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
     outline: none;
     border-color: var(--primary-color);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-group input[type="checkbox"] {
+    width: auto;
+    margin-right: 10px;
+}
+
+.form-group label:has(input[type="checkbox"]) {
+    display: flex;
+    align-items: center;
+    font-weight: normal;
+    margin-bottom: 0;
+}
+
+.form-group label:has(input[type="checkbox"]) span {
+    font-weight: normal;
+    color: #666;
 }
 
 .success-message {
@@ -536,6 +562,162 @@ body {
 .success-message p {
     margin: 15px 0;
     color: #666;
+}
+
+/* ============ AUTH SECTION ============ */
+.auth-section {
+    padding: 80px 20px;
+    background: var(--light-color);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-card {
+    background: white;
+    padding: 40px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+}
+
+.auth-card h2 {
+    margin-bottom: 30px;
+    color: var(--dark-color);
+    font-size: 2rem;
+}
+
+.auth-form {
+    text-align: left;
+}
+
+.auth-form p {
+    margin-bottom: 20px;
+}
+
+.auth-form p label {
+    display: block !important;
+    margin-bottom: 8px !important;
+    font-weight: 600 !important;
+    color: #1a1a1a !important;
+    font-size: 1rem !important;
+}
+
+.auth-form p input[type="text"],
+.auth-form p input[type="email"],
+.auth-form p input[type="password"] {
+    width: 100% !important;
+    padding: 12px 15px !important;
+    border: 2px solid #e0e0e0 !important;
+    border-radius: 8px !important;
+    font-size: 1rem !important;
+    transition: all 0.3s ease !important;
+    background: #fafafa !important;
+    box-sizing: border-box !important;
+}
+
+.auth-form p input:focus {
+    outline: none !important;
+    border-color: #ff6b35 !important;
+    background: white !important;
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1) !important;
+}
+
+.auth-form .helptext {
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
+
+.auth-form .errorlist {
+    color: #d32f2f;
+    font-size: 0.9rem;
+    margin-top: 5px;
+    list-style: none;
+    padding: 0;
+}
+
+.auth-form .errorlist li {
+    margin-bottom: 5px;
+}
+
+.auth-card p {
+    margin-top: 20px;
+    color: #666;
+}
+
+.auth-card p a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-card p a:hover {
+    text-decoration: underline;
+}
+
+/* ============ ACCOUNT SECTION ============ */
+.account-section {
+    padding: 60px 20px;
+    background: var(--light-color);
+    min-height: 100vh;
+}
+
+.account-section h1 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+}
+
+.account-actions {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.account-actions .btn {
+    margin: 0 10px;
+}
+
+.orders-list {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.order-card {
+    background: white;
+    padding: 30px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+}
+
+.order-card h3 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.order-card p {
+    margin: 5px 0;
+    color: #666;
+}
+
+.order-card h4 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: var(--dark-color);
+}
+
+.order-card ul {
+    list-style: none;
+    padding: 0;
+}
+
+.order-card li {
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
 }
 
 /* ============ ABOUT SECTION ============ */

@@ -69,6 +69,9 @@
 
 {% block extra_js %}
 <script>
+const isAuthenticated = {{ request.user.is_authenticated|lower }};
+</script>
+<script>
 let cartData = null;
 let sessionId = localStorage.getItem('sessionId') || 'session-' + Date.now();
 
@@ -107,6 +110,11 @@ function editCart() {
 
 function submitOrder(event) {
     event.preventDefault();
+    
+    if (!isAuthenticated) {
+        window.location.href = '/accounts/login/?next=/order/';
+        return;
+    }
     
     const cartItems = JSON.parse(sessionStorage.getItem('cartItems') || '[]');
     if (cartItems.length === 0) {
